@@ -13,12 +13,64 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // //lets upload these products to local storage only first time 
     // localStorage.setItem("products",JSON.stringify(products));
 
-    products = []; 
-    cart = [];
+    cart_div.innerHTML = "<h2>Cart Here</h2>";
 
-    let total_amount = 0;
+
+    products = [];   //initializing product array
+    cart = [];  //initializing cart array
+
+    let total_amount = 0;  //initializing total amount 
     total_amt.textContent = `RS ${total_amount}`;
 
+    updateCartFromLocal();  //take cart products from local storage and render it on ui.
+    
+
+    function updateCartToLocal(){
+        localStorage.setItem('cartProducts', JSON.stringify(cart));
+    }
+
+
+    function updateCartFromLocal(){
+        cart = JSON.parse(localStorage.getItem('cartProducts')) || [];
+        renderCartProducts();
+    }
+
+    function renderCartProducts(){
+       
+            cart_div.innerHTML = "";
+            cart_div.innerHTML = "<h2>Cart Here</h2>";
+
+            total_amount = 0;
+            update_total(0);
+            // cart.push(product);
+            cart.forEach((cart_product,index) => {
+                let div_cart = document.createElement('div');
+                div_cart.innerHTML = `Product- ${cart_product.id}- Rs${cart_product.price} <button >remove</button>`;
+                
+
+                div_cart.addEventListener("click",(event)=>{
+                    if(event.target.tagName === 'BUTTON'){
+                    // cart.push();
+                    // console.log(cart);
+                    // cart.push(product);
+                    cart = cart.filter((item,indexhere) => index !== indexhere);  
+                    total_amount = 0;
+                    update_total(0);
+                    updateCartToLocal();
+                    updateCartFromLocal();
+                    // renderCartProducts();
+
+                    // updateCart(idHere,nameHere,priceHere,product);
+                    // alert("cart_updated");
+                    }
+                });
+
+                cart_div.appendChild(div_cart);
+                update_total(cart_product.price);
+
+
+            });
+    }
 
     function update_total(amount){
         total_amount = total_amount + amount;
@@ -29,6 +81,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     checkout_btn.addEventListener("click",()=>{
         alert("checked out successfully!!!!");
         cart=[];
+        updateCartToLocal();
         total_amount = 0;
         update_total(0);
         empty_cart();
@@ -41,34 +94,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
     //lets take all the products
     function takeAllProductsFromLocalStorage(){
-        products  = JSON.parse(localStorage.getItem('products')) || []; 
+        products  = JSON.parse(localStorage.getItem('products')) || [];     //this is how we get data from our local storage. 
     }
 
-    //
-    function updateCart(id,name,price,product){
-        if(cart.length === 0){
-
-            cart_div.innerHTML = "<h2>Cart</h2>";
-            cart.push(product);
-            let div_cart = document.createElement('div');
-            div_cart.innerHTML = `${name}- Rs${price}`;
-            cart_div.appendChild(div_cart);
-            update_total(price);
-
-
-        }
-        else{
-            cart.push(product);
-            let div_cart = document.createElement('div');
-            div_cart.innerHTML = `${name}- Rs${price}`;
-            cart_div.appendChild(div_cart);
-            update_total(price);
-
-        }
-        
-
-
-    }
 
     takeAllProductsFromLocalStorage();
     // console.log(products);
@@ -90,7 +118,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
             if(event.target.tagName === 'BUTTON'){
                 // cart.push();
                 console.log(cart);
-                updateCart(idHere,nameHere,priceHere,product);
+                cart.push(product);
+                updateCartToLocal();
+                updateCartFromLocal();
+                // renderCartProducts();
+
+                // updateCart(idHere,nameHere,priceHere,product);
                 // alert("cart_updated");
             }
         });
